@@ -1,0 +1,28 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+body {
+  margin: 0;
+  padding: 0;
+  background: #f8f9fa;
+}
+
+.slot-btn {
+  padding: 1rem;
+  font-size: 1.1rem;
+  background: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.slot-btn:hover {
+  background: #0055aa;
+  transform: translateY(-2px);
+}
+
+.slot-btn:active {
+  background: #004499;
+}
