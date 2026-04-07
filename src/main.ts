@@ -1,5 +1,6 @@
 import './style.css'
 import type { Result } from './Result.js';
+import { fetchAvailableSlots, bookMeeting, formatTime, formatDateTime, validateEmail, validatePhone } from './utils.js';
 
 declare global {
     interface Window {
@@ -9,40 +10,6 @@ declare global {
 
 const app = document.getElementById('app') as HTMLDivElement
 
-async function fetchAvailableSlots(selectedDate: string): Promise<Result<string[], Error>> {
-    try{
-        const res = await fetch(`http://api.merelscapital.com:3000/slots?date=${selectedDate}`);
-        if (!res.ok) {
-            throw new Error(`API error: ${res.status}`);
-        }
-        const data = await res.json();
-        return { ok: true, value: data.slots };
-    }
-    catch(error){
-        console.error("Error fetching slots:", error);
-        let result: Result<string[], Error> = { ok: false, error: new Error('Failed to fetch available slots') };
-        return result;
-    }
-}
-
-async function bookMeeting(values: string[]): Promise<Result<boolean, Error>> {
-    try{
-        const res = await fetch(`http://api.merelscapital.com:3000/booking`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ values }),
-        });
-        if (!res.ok) {
-            throw new Error(`API error: ${res.status}`);
-        }
-        const data = await res.json();
-        return { ok: true, value: data };
-    }
-    catch(error){
-        let result: Result<string[], Error> = { ok: false, error: new Error('Failed to fetch available slots') };
-        return result;
-    }
-}
 
 function renderTimeSlots(slots: Result<string[], Error>, selectedDate: string) {
     if (slots.ok) {
@@ -221,12 +188,7 @@ async function loadAndRender(date: string) {
                 const contact = contactInput.value
                 const details = (document.getElementById('details') as HTMLTextAreaElement).value
 
-                let contactValid: boolean
-                if (meetingType === 'Phone') {
-                    contactValid = /^\+?[\d\s\-().]{7,15}$/.test(contact)
-                } else {
-                    contactValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)
-                }
+                const contactValid = meetingType === 'Phone' ? validatePhone(contact) : validateEmail(contact)
 
                 if (!contactValid) {
                     contactError.style.display = 'block'
@@ -257,19 +219,6 @@ async function loadAndRender(date: string) {
     })
 }
 
-function formatTime(time: string): string {
-    const isoStr = time.replace(/\[.*\]$/, '') // strip [America/Denver]
-    const date = new Date(isoStr)
-    return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
-}
-
-function formatDateTime(time: string): string{
-    const isoStr = time.replace(/\[.*\]$/, '') // strip [America/Denver]
-    const [datePart, timePart] = isoStr.split('T')
-    const [year, month, day] = datePart.split('-')
-    const hhmm = timePart.slice(0, 5)
-    return `${month}/${day}/${year} ${hhmm}`
-}
 
 
 // Initial load (next business day’s date)
