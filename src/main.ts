@@ -135,7 +135,41 @@ function renderThankYou(name: string, time: string) {
     </div>`
 }
 
+function renderLoading(date: string) {
+    return `
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: system-ui; background: #f5f5f5;">
+        <div style="background: white; border-radius: 24px; padding: 2rem; width: 100%; max-width: 420px; box-shadow: 0 8px 32px rgba(0,0,0,0.12);">
+            <div style="background: #f0f0f0; border-radius: 16px; padding: 1.25rem 1.5rem; text-align: center; margin-bottom: 1.5rem;">
+                <h1 style="font-size: 1.4rem; font-weight: 700; margin: 0 0 0.25rem;">Book a meeting</h1>
+                <p style="color: #888; margin: 0; font-size: 0.95rem;">Select an available time slot.</p>
+            </div>
+            <p style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; color: #444; margin: 0 0 0.75rem;">PICK A DATE</p>
+            <div style="display: flex; align-items: center; gap: 0.75rem; background: white; border: 1px solid #eee; border-radius: 999px; padding: 0.85rem 1.25rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 1.25rem;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B2774" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <input type="date" id="date-picker-loading" value="${date}" style="border: none; outline: none; font-size: 1rem; font-weight: 600; width: 100%; background: transparent; cursor: pointer;" />
+            </div>
+            <p style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; color: #444; margin: 0 0 0.75rem;">AVAILABLE TIMES</p>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                ${[1,2,3,4].map(() => `
+                    <div style="height: 52px; background: #f0f0f0; border-radius: 999px; animation: pulse 1.5s ease-in-out infinite;"></div>
+                `).join('')}
+            </div>
+        </div>
+    </div>
+    <style>
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    </style>`
+}
+
 async function loadAndRender(date: string) {
+    app.innerHTML = renderLoading(date)
+
+    // Allow date changes even while loading
+    document.getElementById('date-picker-loading')?.addEventListener('change', async (e) => {
+        const newDate = (e.target as HTMLInputElement).value
+        await loadAndRender(newDate)
+    })
+
     const slots = await fetchAvailableSlots(date)
     app.innerHTML = renderTimeSlots(slots, date)
 
@@ -220,6 +254,12 @@ async function loadAndRender(date: string) {
 
 
 
-// Initial load (next business day’s date)
-const tomorrow = new Date("2026-05-29");
-loadAndRender(tomorrow.toISOString().split('T')[0])
+// Initial load — find the next business day (Mon–Fri, at least 1 day ahead)
+function nextBusinessDay(): string {
+    const d = new Date()
+    d.setDate(d.getDate() + 1)
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1)
+    return d.toISOString().substring(0, 10)
+}
+
+loadAndRender(nextBusinessDay())
