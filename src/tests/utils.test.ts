@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
     fetchAvailableSlots,
     bookMeeting,
@@ -40,7 +40,7 @@ describe('fetchAvailableSlots', () => {
         await fetchAvailableSlots('2026-05-29');
 
         expect(mockFetch).toHaveBeenCalledWith(
-            'http://api.merelscapital.com:3000/slots?date=2026-05-29'
+            'https://api.merelscapital.com/slots?date=2026-05-29'
         );
     });
 
@@ -110,7 +110,7 @@ describe('bookMeeting', () => {
         await bookMeeting(validValues);
 
         expect(mockFetch).toHaveBeenCalledWith(
-            'http://api.merelscapital.com:3000/booking',
+            'https://api.merelscapital.com/booking',
             expect.objectContaining({ method: 'POST' })
         );
     });

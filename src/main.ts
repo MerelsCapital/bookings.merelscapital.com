@@ -139,17 +139,16 @@ async function loadAndRender(date: string) {
     const slots = await fetchAvailableSlots(date)
     app.innerHTML = renderTimeSlots(slots, date)
 
-    // Re-attach event listeners after render
-    const datePicker = document.getElementById('date-picker') as HTMLInputElement
-    const slotsContainer = document.getElementById('slots-container') as HTMLDivElement
-    //const selectedDisplay = document.getElementById('selected-slot') as HTMLParagraphElement
+    // Re-attach event listeners after render (not present in error state)
+    const datePicker = document.getElementById('date-picker') as HTMLInputElement | null
+    const slotsContainer = document.getElementById('slots-container') as HTMLDivElement | null
 
-    datePicker.addEventListener('change', async (e) => {
+    datePicker?.addEventListener('change', async (e) => {
         const newDate = (e.target as HTMLInputElement).value
         await loadAndRender(newDate)
     })
 
-    slotsContainer.addEventListener('click', (e) => {
+    slotsContainer?.addEventListener('click', (e) => {
         const btn = (e.target as HTMLElement).closest('.slot-btn')
         if (btn) {
             const time = btn.getAttribute('data-time')

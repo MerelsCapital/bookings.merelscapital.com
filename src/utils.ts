@@ -1,8 +1,10 @@
 import type { Result } from './Result.js';
 
+const API_URL = (import.meta.env?.VITE_API_URL as string | undefined) ?? 'https://api.merelscapital.com';
+
 export async function fetchAvailableSlots(selectedDate: string): Promise<Result<string[], Error>> {
     try {
-        const res = await fetch(`http://api.merelscapital.com:3000/slots?date=${selectedDate}`);
+        const res = await fetch(`${API_URL}/slots?date=${selectedDate}`);
         if (!res.ok) {
             throw new Error(`API error: ${res.status}`);
         }
@@ -16,7 +18,7 @@ export async function fetchAvailableSlots(selectedDate: string): Promise<Result<
 
 export async function bookMeeting(values: string[]): Promise<Result<boolean, Error>> {
     try {
-        const res = await fetch(`http://api.merelscapital.com:3000/booking`, {
+        const res = await fetch(`${API_URL}/booking`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ values }),
