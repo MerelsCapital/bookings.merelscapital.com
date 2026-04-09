@@ -235,8 +235,8 @@ async function loadAndRender(date: string) {
                     const values: string[] = [name, contact, time, details, meetingType];
                     window.uetq = window.uetq || [];
                     window.uetq.push('set', { pid: {
-                        email: meetingType !== 'Phone' ? contact : '',
-                        phone: meetingType === 'Phone' ? contact : '',
+                        em: meetingType !== 'Phone' ? contact : '',
+                        ph: meetingType === 'Phone' ? contact : '',
                     }});
                     const booked = await bookMeeting(values);
                     if (booked.ok) {
