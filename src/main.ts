@@ -5,7 +5,9 @@ import { fetchAvailableSlots, bookMeeting, formatTime, formatDateTime, validateE
 declare global {
     interface Window {
         uetq: unknown[];
+        dataLayer: unknown[];
     }
+    function gtag(...args: unknown[]): void;
 }
 
 const app = document.getElementById('app') as HTMLDivElement
@@ -244,6 +246,7 @@ async function loadAndRender(date: string) {
                             event_category: 'booking',
                             event_label: meetingType,
                         })
+                        gtag('event', 'booking_complete')
                         app.innerHTML = renderThankYou(name, time ?? '')
                     }
                 }
