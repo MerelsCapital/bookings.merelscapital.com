@@ -12,7 +12,6 @@ declare global {
 
 const app = document.getElementById('app') as HTMLDivElement
 
-
 function renderTimeSlots(slots: Result<string[], Error>, selectedDate: string) {
     if (slots.ok) {
         const slotHTML = slots.value.map(slot => `
@@ -255,14 +254,11 @@ async function loadAndRender(date: string) {
     })
 }
 
-
-
-// Initial load — find the next business day (Mon–Fri, at least 1 day ahead)
 function nextBusinessDay(): string {
     const d = new Date()
     d.setDate(d.getDate() + 1)
-    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1)
-    return d.toISOString().substring(0, 10)
+    while (d.getDay() === 0 || d.getDay() === 6) { d.setDate(d.getDate() + 1); }
+    return d.toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
 }
 
 loadAndRender(nextBusinessDay())
