@@ -7,7 +7,6 @@ declare global {
         uetq: unknown[];
         dataLayer: unknown[];
     }
-    function gtag(...args: unknown[]): void;
 }
 
 const app = document.getElementById('app') as HTMLDivElement
@@ -163,6 +162,7 @@ function renderLoading(date: string) {
 }
 
 async function loadAndRender(date: string) {
+    console.log("loadAndRender date: " + date);
     app.innerHTML = renderLoading(date)
 
     // Allow date changes even while loading
@@ -170,7 +170,7 @@ async function loadAndRender(date: string) {
         const newDate = (e.target as HTMLInputElement).value
         await loadAndRender(newDate)
     })
-
+    console.log("date = " + date);
     const slots = await fetchAvailableSlots(date)
     app.innerHTML = renderTimeSlots(slots, date)
 
@@ -241,11 +241,8 @@ async function loadAndRender(date: string) {
                     }});
                     const booked = await bookMeeting(values);
                     if (booked.ok) {
-                        window.uetq.push('event', 'booking_complete', {
-                            event_category: 'booking',
-                            event_label: meetingType,
-                        })
-                        gtag('event', 'booking_complete')
+                        window.dataLayer = window.dataLayer || []
+                        window.dataLayer.push({ event: 'booking_complete', booking_method: meetingType })
                         app.innerHTML = renderThankYou(name, time ?? '')
                     }
                 }
@@ -258,7 +255,8 @@ function nextBusinessDay(): string {
     const d = new Date()
     d.setDate(d.getDate() + 1)
     while (d.getDay() === 0 || d.getDay() === 6) { d.setDate(d.getDate() + 1); }
-    return d.toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
+    console.log("d = " + d.toLocaleDateString('en-CA'));
+    return d.toLocaleDateString('en-CA', { timeZone: 'America/Denver' })
 }
 
 loadAndRender(nextBusinessDay())
